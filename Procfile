@@ -1,1 +1,1 @@
-web: gunicorn sslcheck:app
+web: gunicorn sslcertfetch:app

@@ -38,16 +38,31 @@ def index():
             font-family: monospace;
             white-space: pre;
         }
+        form {
+            margin: 0;
+        }
+        code {
+            background: #eee;
+            padding: 2px
+        }
+        input[type=text] {
+            padding: 4px;
+            font-family: monospace;
+        }
     </style>
 
-<body>Welcome to the SSL checker!
+<body>Welcome to the <strong>SSL Certificate Fetcher</strong>!
 
 This mini-app will retrieve and display SSL certs for requested servers;
 you can quickly check to make sure they match what your browser is reporting
 for a safe browsing experience.
 
-<form><input name="url" size="100" placeholder="example.com" /> <input type="submit" /></form>
+<form><input type="text" name="url" size="60" placeholder="https://example.com/" /> <input type="submit" /></form>
+This is app is essentially the same as fetching the cert and running:
 
+    <code>openssl x509 -text -noout -nameopt multiline</code>
+
+<a href="https://github.com/mikeboers/SSLCertFetcher">Fork me on GitHub.</a>
 '''
 
 
