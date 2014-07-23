@@ -9,11 +9,26 @@ from flask import Flask, request, redirect, abort, url_for
 app = Flask(__name__)
 
 
+def parse_url(url):
+    parsed = urlparse(url)
+    if parsed.netloc:
+        return parsed.hostname, parsed.port and int(parsed.port)
+    else:
+        parts = parsed.path.split(':', 1)
+        if len(parts) == 1:
+            return parts[0], None
+        else:
+            return parts[0], int(parts[1])
+
+
 @app.route('/')
 def index():
 
     if 'url' in request.args:
-        return redirect(url_for('main', url=request.args['url']))
+        hostname, port = parse_url(request.args['url'])
+        if port:
+            hostname = '%s:%d' % (hostname, port)
+        return redirect(url_for('main', url=hostname))
 
     return '''
 <!doctype html5>
@@ -39,15 +54,18 @@ for a safe browsing experience.
 @app.route('/<path:url>')
 def main(url):
 
-    parsed = urlparse(url)
-    hostname = parsed.netloc or parsed.path
+    hostname, port = parse_url(url)
+    port = port or 443
 
     try:
         addr = socket.gethostbyname(hostname)
     except socket.gaierror:
         abort(404)
 
-    cert = ssl.get_server_certificate((addr, 443))
+    try:
+        cert = ssl.get_server_certificate((addr, port))
+    except ssl.SSLError:
+        abort(404)
 
     proc = subprocess.Popen(['openssl', 'x509', '-text', '-noout', '-nameopt', 'multiline'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     parsed, err = proc.communicate(cert)
