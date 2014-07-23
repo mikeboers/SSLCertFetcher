@@ -3,10 +3,37 @@ import socket
 import subprocess
 from urlparse import urlparse
 
-from flask import Flask, request, abort
+from flask import Flask, request, redirect, abort, url_for
 
 
 app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+
+    if 'url' in request.args:
+        return redirect(url_for('main', url=request.args['url']))
+
+    return '''
+<!doctype html5>
+<head>
+    <style>
+        html {
+            font-family: monospace;
+            white-space: pre;
+        }
+    </style>
+
+<body>Welcome to the SSL checker!
+
+This mini-app will retrieve and display SSL certs for requested servers;
+you can quickly check to make sure they match what your browser is reporting
+for a safe browsing experience.
+
+<form><input name="url" size="100" placeholder="example.com" /> <input type="submit" /></form>
+
+'''
 
 
 @app.route('/<path:url>')
